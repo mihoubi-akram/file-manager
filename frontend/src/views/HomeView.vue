@@ -1,9 +1,19 @@
 <script setup lang="ts">
-import { useAuthStore } from '@/stores/auth'
+import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+import { useFilesStore } from '@/stores/files'
+import { Button } from '@/components/ui/button'
+import DropZone from '@/components/files/DropZone.vue'
+import SearchInput from '@/components/files/SearchInput.vue'
+import FileTable from '@/components/files/FileTable.vue'
+import DeleteModal from '@/components/files/DeleteModal.vue'
 
 const auth = useAuthStore()
+const filesStore = useFilesStore()
 const router = useRouter()
+
+onMounted(() => filesStore.fetchFiles())
 
 async function handleLogout(): Promise<void> {
   await auth.logout()
@@ -12,55 +22,22 @@ async function handleLogout(): Promise<void> {
 </script>
 
 <template>
-  <div class="page">
-    <div class="card">
-      <h1>Welcome, {{ auth.user?.name }}</h1>
-      <p>{{ auth.user?.email }}</p>
-      <button @click="handleLogout">Logout</button>
-    </div>
+  <div class="min-h-screen bg-background">
+    <header class="sticky top-0 z-10 border-b bg-card px-6 py-3 flex items-center justify-between">
+      <span class="text-sm font-semibold uppercase">{{ auth.user?.name }}</span>
+      <Button variant="ghost" size="sm" @click="handleLogout">Logout</Button>
+    </header>
+
+    <main class="mx-auto max-w-4xl px-4 py-8 space-y-6">
+      <DropZone />
+
+      <div class="flex justify-end">
+        <SearchInput />
+      </div>
+
+      <FileTable />
+    </main>
+
+    <DeleteModal />
   </div>
 </template>
-
-<style scoped>
-.page {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #f5f5f5;
-}
-
-.card {
-  background: #fff;
-  border-radius: 8px;
-  padding: 2rem;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
-  text-align: center;
-}
-
-h1 {
-  margin: 0 0 0.5rem;
-  font-size: 1.25rem;
-  font-weight: 600;
-}
-
-p {
-  margin: 0 0 1.5rem;
-  color: #666;
-  font-size: 0.9rem;
-}
-
-button {
-  padding: 0.5rem 1.25rem;
-  background: #111;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 0.9rem;
-}
-
-button:hover {
-  background: #333;
-}
-</style>
